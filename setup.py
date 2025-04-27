@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="kimia_infer",
-    version="0.1.1",
+    version="0.1.2",
     description="Kimi-Audio inference and toolkit package.",
     author="Moonshot AI",
     packages=find_packages(),
