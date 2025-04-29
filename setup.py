@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="kimia_infer",
-    version="0.1.5",
+    version="0.1.6",
     description="Kimi-Audio inference and toolkit package.",
     author="Moonshot AI",
     packages=find_packages(),
@@ -49,5 +49,12 @@ setup(
         "tqdm"
     ],
     include_package_data=True,
+    package_data={
+        'kimia_infer.models.detokenizer.vocoder.alias_free_activation': [
+            'cuda/*.h',
+            'cuda/*.cu',
+            'cuda/*.cpp'
+        ]
+    },
     python_requires=">=3.8",
 )
