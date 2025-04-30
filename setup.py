@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="kimia_infer",
-    version="0.1.6",
+    version="0.1.7",
     description="Kimi-Audio inference and toolkit package.",
     author="Moonshot AI",
     packages=find_packages(),
@@ -54,7 +54,8 @@ setup(
             'cuda/*.h',
             'cuda/*.cu',
             'cuda/*.cpp'
-        ]
+        ],
+        'kimia_infer.models.tokenizer.whisper_Lv3': ['*.npz']
     },
     python_requires=">=3.8",
 )
