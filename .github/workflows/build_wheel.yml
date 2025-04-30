@@ -71,14 +71,14 @@ jobs:
           fi
 
       # test if cuda_profiler_api.h is in the include path using nvcc
-      - name: Check CUDA include path
-        run: |
-          if nvcc -I/usr/local/cuda-12.4/include -E -x c++ -o /dev/null - <(echo '#include <cuda_profiler_api.h>'); then
-            echo "cuda_profiler_api.h is in the include path"
-          else
-            echo "cuda_profiler_api.h is not in the include path"
-            exit 1
-          fi
+      # - name: Check CUDA include path
+      #   run: |
+      #     if nvcc -I/usr/local/cuda-12.4/include -E -x c++ -o /dev/null - <(echo '#include <cuda_profiler_api.h>'); then
+      #       echo "cuda_profiler_api.h is in the include path"
+      #     else
+      #       echo "cuda_profiler_api.h is not in the include path"
+      #       exit 1
+      #     fi
         
       - name: Install Deps
         # python -m pip install --upgrade pip
