@@ -39,7 +39,7 @@ jobs:
         with:
           cuda: ${{ matrix.cuda-version }}
           method: network
-          sub-packages: '["nvcc"]'
+          sub-packages: '["nvcc", "cudart", "cusolver", "cublas", "curand", "cufft", "cusparse", "cupti", "thrust"]'
 
       - name: Set CUDA paths
         run: |
