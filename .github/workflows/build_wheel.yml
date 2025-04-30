@@ -98,11 +98,20 @@ jobs:
           python -m pip install torch==2.6.0 wheel ninja build setuptools
           python -m pip install .
 
+      # - name: Build the wheel
+      #   env:
+      #     TORCH_CUDA_ARCH_LIST: "7.0;8.0"  # Specify supported GPU architectures
+      #     FORCE_CUDA: 1
+      #   run: python -m build --wheel --outdir dist/
+
+      # Alternative build approach
       - name: Build the wheel
         env:
           TORCH_CUDA_ARCH_LIST: "7.0;8.0"  # Specify supported GPU architectures
           FORCE_CUDA: 1
-        run: python -m build --wheel --outdir dist/
+          # Disable build isolation
+          PIP_NO_BUILD_ISOLATION: "yes" 
+        run: python -m build --wheel --no-isolation --outdir dist/
 
       - run: du -h dist/*
       - uses: actions/upload-artifact@v4
