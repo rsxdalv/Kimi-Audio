@@ -19,8 +19,8 @@ jobs:
         python-version: ["3.10"]
         # cuda-version: ["12.4.0"]
         # fix due to missing 12.4.0 in the network
-        cuda-version: ["12.5.0"]
-        # cuda-version: ["12.4.1"]
+        # cuda-version: ["12.5.0"]
+        cuda-version: ["12.4.1"]
 
     runs-on: ${{ matrix.platform }}
 
@@ -38,14 +38,48 @@ jobs:
         uses: Jimver/cuda-toolkit@v0.2.23
         with:
           cuda: ${{ matrix.cuda-version }}
-          method: network
-          sub-packages: '["nvcc", "cudart", "cusolver", "cublas", "curand", "cufft", "cusparse", "cupti", "thrust"]'
+          # method: network
+          method: local
+          # sub-packages: '["nvcc", "cudart", "cusolver", "cublas", "curand", "cufft", "cusparse", "cupti", "thrust"]'
 
+      # - name: Set CUDA paths
+      #   run: |
+      #     echo "PATH=/usr/local/cuda-12.5/bin:$PATH" >> $GITHUB_ENV
+      #     echo "LD_LIBRARY_PATH=/usr/local/cuda-12.5/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
       - name: Set CUDA paths
         run: |
-          echo "PATH=/usr/local/cuda-12.5/bin:$PATH" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=/usr/local/cuda-12.5/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          echo "PATH=/usr/local/cuda-12.4/bin:$PATH" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=/usr/local/cuda-12.4/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+      - name: Check CUDA version
+        run: |
+          echo "CUDA version:"
+          nvcc --version
+          echo "CUDA path:"
+          which nvcc
+          echo "LD_LIBRARY_PATH:"
+          echo $LD_LIBRARY_PATH
+          echo "PATH:"
+          echo $PATH
+      # test if cuda_profiler_api.h exists
+      - name: Check CUDA profiler_api.h
+        run: |
+          if [ -f /usr/local/cuda-12.4/include/cuda_profiler_api.h ]; then
+            echo "cuda_profiler_api.h exists"
+          else
+            echo "cuda_profiler_api.h does not exist"
+            exit 1
+          fi
 
+      # test if cuda_profiler_api.h is in the include path using nvcc
+      - name: Check CUDA include path
+        run: |
+          if nvcc -I/usr/local/cuda-12.4/include -E -x c++ -o /dev/null - <(echo '#include <cuda_profiler_api.h>'); then
+            echo "cuda_profiler_api.h is in the include path"
+          else
+            echo "cuda_profiler_api.h is not in the include path"
+            exit 1
+          fi
+        
       - name: Install Deps
         # python -m pip install --upgrade pip
         run: |
