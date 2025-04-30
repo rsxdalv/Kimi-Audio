@@ -41,7 +41,19 @@ jobs:
           # method: network
           method: local
           # sub-packages: '["nvcc", "cudart", "cusolver", "cublas", "curand", "cufft", "cusparse", "cupti", "thrust"]'
+      - name: Free Up GitHub Actions Ubuntu Runner Disk Space 🔧
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # This might remove tools that are actually needed, if set to "true" but frees about 6 GB
+          tool-cache: false
 
+          # All of these default to true, but feel free to set to "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          swap-storage: false
+          docker-images: false
       # - name: Set CUDA paths
       #   run: |
       #     echo "PATH=/usr/local/cuda-12.5/bin:$PATH" >> $GITHUB_ENV
