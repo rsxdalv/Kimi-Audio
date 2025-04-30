@@ -5,10 +5,8 @@ import torch
 import torch.nn as nn
 from ..torch.resample import UpSample1d, DownSample1d
 
-# load fused CUDA kernel: this enables importing anti_alias_activation_cuda
-from . import load
-
-anti_alias_activation_cuda = load.load()
+# Import precompiled CUDA extension
+from . import anti_alias_activation_cuda
 
 
 class FusedAntiAliasActivation(torch.autograd.Function):

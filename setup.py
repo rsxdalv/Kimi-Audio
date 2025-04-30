@@ -1,4 +1,28 @@
 from setuptools import setup, find_packages
+from torch.utils.cpp_extension import BuildExtension, CUDAExtension
+import pathlib
+
+# Get CUDA extension source files
+cuda_dir = pathlib.Path("kimia_infer/models/detokenizer/vocoder/alias_free_activation/cuda")
+sources = [
+    str(cuda_dir / "anti_alias_activation.cpp"),
+    str(cuda_dir / "anti_alias_activation_cuda.cu"),
+]
+
+# CUDA compilation flags
+extra_compile_args = {
+    "cxx": ["-O3"],
+    "nvcc": [
+        "-O3",
+        "-gencode", "arch=compute_70,code=sm_70",
+        "-gencode", "arch=compute_80,code=sm_80",
+        "--use_fast_math",
+        "-U__CUDA_NO_HALF_OPERATORS__",
+        "-U__CUDA_NO_HALF_CONVERSIONS__",
+        "--expt-relaxed-constexpr",
+        "--expt-extended-lambda",
+    ]
+}
 
 setup(
     name="kimia_infer",
@@ -56,6 +80,17 @@ setup(
             'cuda/*.cpp'
         ],
         'kimia_infer.models.tokenizer.whisper_Lv3': ['*.npz']
+    },
+    ext_modules=[
+        CUDAExtension(
+            name='kimia_infer.models.detokenizer.vocoder.alias_free_activation.cuda.anti_alias_activation_cuda',
+            sources=sources,
+            extra_compile_args=extra_compile_args,
+            include_dirs=[str(cuda_dir)],
+        )
+    ],
+    cmdclass={
+        'build_ext': BuildExtension
     },
     python_requires=">=3.8",
 )
