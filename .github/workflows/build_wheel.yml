@@ -29,7 +29,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Setup CUDA
-        uses: Jimver/cuda-toolkit@v0.2.14
+        uses: Jimver/cuda-toolkit@v0.2.23
         with:
           cuda: ${{ matrix.cuda-version }}
           method: network
