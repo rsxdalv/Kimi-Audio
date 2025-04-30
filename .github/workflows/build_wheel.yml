@@ -17,7 +17,9 @@ jobs:
       matrix:
         platform: [ubuntu-latest]
         python-version: ["3.10"]
-        cuda-version: ["12.4.0"]
+        # cuda-version: ["12.4.0"]
+        # fix due to missing 12.4.0 in the network
+        cuda-version: ["12.5.0"]
 
     runs-on: ${{ matrix.platform }}
 
