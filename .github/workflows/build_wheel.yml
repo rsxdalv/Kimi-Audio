@@ -19,7 +19,8 @@ jobs:
         python-version: ["3.10"]
         # cuda-version: ["12.4.0"]
         # fix due to missing 12.4.0 in the network
-        cuda-version: ["12.5.0"]
+        # cuda-version: ["12.5.0"]
+        cuda-version: ["12.4.1"]
 
     runs-on: ${{ matrix.platform }}
 
@@ -39,6 +40,11 @@ jobs:
           cuda: ${{ matrix.cuda-version }}
           method: network
           sub-packages: '["nvcc"]'
+
+      - name: Set CUDA paths
+        run: |
+          echo "PATH=/usr/local/cuda-12.4/bin:$PATH" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=/usr/local/cuda-12.4/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
       - name: Install Deps
         # python -m pip install --upgrade pip
