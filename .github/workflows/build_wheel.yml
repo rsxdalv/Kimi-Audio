@@ -31,24 +31,18 @@ jobs:
         with:
           submodules: recursive
 
-      # throw error
-      # - name: throw error
-      #   run: |
-      #     echo "throw error"
-      #     exit 1
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      # - name: Setup CUDA
-      #   uses: Jimver/cuda-toolkit@v0.2.23
-      #   with:
-      #     cuda: ${{ matrix.cuda-version }}
-      #     # method: network
-      #     method: local
-          # sub-packages: '["nvcc", "cudart", "cusolver", "cublas", "curand", "cufft", "cusparse", "cupti", "thrust"]'
+      - name: Setup CUDA
+        uses: Jimver/cuda-toolkit@v0.2.23
+        with:
+          cuda: ${{ matrix.cuda-version }}
+          # method: network
+          method: local
+          sub-packages: '["nvcc", "cudart", "cusolver", "cublas", "curand", "cufft", "cusparse", "cupti", "thrust"]'
       - name: Free Up GitHub Actions Ubuntu Runner Disk Space 🔧
         uses: jlumbroso/free-disk-space@main
         with:
@@ -62,10 +56,7 @@ jobs:
           large-packages: false
           swap-storage: false
           docker-images: false
-      # - name: Set CUDA paths
-      #   run: |
-      #     echo "PATH=/usr/local/cuda-12.5/bin:$PATH" >> $GITHUB_ENV
-      #     echo "LD_LIBRARY_PATH=/usr/local/cuda-12.5/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+
       - name: Set CUDA paths for Linux
         if: runner.os == 'Linux'
         run: |
@@ -73,74 +64,12 @@ jobs:
           echo "LD_LIBRARY_PATH=/usr/local/cuda-12.4/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
 
-      - name: Check CUDA paths
-        if: runner.os == 'Linux'
-        run: |
-          echo "PATH:"
-          echo $PATH
-          echo "LD_LIBRARY_PATH:"
-          echo $LD_LIBRARY_PATH
-          echo "CUDA_PATH:"
-          echo $CUDA_PATH
-          echo "CUDA_HOME:"
-          echo $CUDA_HOME
-        
       - name: Set CUDA paths for Windows
         if: runner.os == 'Windows'
         run: |
           echo "PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4\bin;${env:PATH}" >> $env:GITHUB_ENV
           echo "CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" >> $env:GITHUB_ENV
           echo "CUDA_HOME=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" >> $env:GITHUB_ENV
-
-      # check ENV variable
-      - name: Check CUDA paths
-        if: runner.os == 'Windows'
-        run: |
-          echo "PATH:"
-          echo $env:PATH
-          echo "CUDA_PATH:"
-          echo $env:CUDA_PATH
-          echo "CUDA_HOME:"
-          echo $env:CUDA_HOME
-
-      # - name: Check CUDA version
-      #   run: |
-      #     echo "CUDA version:"
-      #     nvcc --version
-      #     echo "CUDA path:"
-      #     which nvcc
-      #     echo "LD_LIBRARY_PATH:"
-      #     echo $LD_LIBRARY_PATH
-      #     echo "PATH:"
-      #     echo $PATH
-
-      - name: Install Deps
-        # python -m pip install --upgrade pip
-        run: |
-          python -m pip install torch==2.6.0 wheel ninja build setuptools numpy --extra-index-url https://download.pytorch.org/whl/cu124
-        
-      - name: Debug PyTorch CUDA detection
-        shell: powershell
-        run: |
-          python -c "
-          import os
-          import torch
-          from torch.utils.cpp_extension import _join_cuda_home
-          
-          print('Environment variables:')
-          print('CUDA_HOME =', os.environ.get('CUDA_HOME'))
-          print('CUDA_PATH =', os.environ.get('CUDA_PATH'))
-          
-          print('\\nPyTorch CUDA detection:')
-          try:
-              cuda_home = _join_cuda_home('lib/x64')
-              print('PyTorch found CUDA at:', cuda_home)
-          except Exception as e:
-              print('PyTorch CUDA detection error:', e)
-          
-          print('\\nTorch CUDA availability:')
-          print('torch.cuda.is_available() =', torch.cuda.is_available())
-          "
 
       # test if cuda_profiler_api.h exists
       - name: Check CUDA profiler_api.h on Linux
@@ -163,30 +92,13 @@ jobs:
             echo "cuda_profiler_api.h does not exist"
             exit 1
           }
-
-      # test if cuda_profiler_api.h is in the include path using nvcc
-      # - name: Check CUDA include path
-      #   run: |
-      #     if nvcc -I/usr/local/cuda-12.4/include -E -x c++ -o /dev/null - <(echo '#include <cuda_profiler_api.h>'); then
-      #       echo "cuda_profiler_api.h is in the include path"
-      #     else
-      #       echo "cuda_profiler_api.h is not in the include path"
-      #       exit 1
-      #     fi
         
       - name: Install Deps
-        # python -m pip install --upgrade pip
-        run: |
-          python -m pip install torch==2.6.0 wheel ninja build setuptools numpy
-          python -m pip install --no-build-isolation -e .
+        run: python -m pip install torch==2.6.0 wheel ninja build setuptools numpy --extra-index-url https://download.pytorch.org/whl/cu124
+      
+      - name: Install project depss
+        run: python -m pip install --no-build-isolation -e .
 
-      # - name: Build the wheel
-      #   env:
-      #     TORCH_CUDA_ARCH_LIST: "7.0;8.0"  # Specify supported GPU architectures
-      #     FORCE_CUDA: 1
-      #   run: python -m build --wheel --outdir dist/
-
-      # Alternative build approach
       - name: Build the wheel
         env:
           TORCH_CUDA_ARCH_LIST: "7.0;8.0"  # Specify supported GPU architectures
