@@ -103,16 +103,16 @@ jobs:
           echo "CUDA_HOME:"
           echo $env:CUDA_HOME
 
-      - name: Check CUDA version
-        run: |
-          echo "CUDA version:"
-          nvcc --version
-          echo "CUDA path:"
-          which nvcc
-          echo "LD_LIBRARY_PATH:"
-          echo $LD_LIBRARY_PATH
-          echo "PATH:"
-          echo $PATH
+      # - name: Check CUDA version
+      #   run: |
+      #     echo "CUDA version:"
+      #     nvcc --version
+      #     echo "CUDA path:"
+      #     which nvcc
+      #     echo "LD_LIBRARY_PATH:"
+      #     echo $LD_LIBRARY_PATH
+      #     echo "PATH:"
+      #     echo $PATH
 
       - name: Install Deps
         # python -m pip install --upgrade pip
