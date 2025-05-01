@@ -31,29 +31,11 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Set CUDA paths for Windows
-        if: runner.os == 'Windows'
-        run: |
-          echo "PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4\bin;${env:PATH}" >> $env:GITHUB_ENV
-          echo "CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" >> $env:GITHUB_ENV
-          echo "CUDA_HOME=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" >> $env:GITHUB_ENV
-
-      # check ENV variable
-      - name: Check CUDA paths
-        if: runner.os == 'Windows'
-        run: |
-          echo "PATH:"
-          echo $env:PATH
-          echo "CUDA_PATH:"
-          echo $env:CUDA_PATH
-          echo "CUDA_HOME:"
-          echo $env:CUDA_HOME
-
       # throw error
-      - name: throw error
-        run: |
-          echo "throw error"
-          exit 1
+      # - name: throw error
+      #   run: |
+      #     echo "throw error"
+      #     exit 1
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -90,12 +72,37 @@ jobs:
           echo "PATH=/usr/local/cuda-12.4/bin:$PATH" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=/usr/local/cuda-12.4/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
+
+      - name: Check CUDA paths
+        if: runner.os == 'Linux'
+        run: |
+          echo "PATH:"
+          echo $PATH
+          echo "LD_LIBRARY_PATH:"
+          echo $LD_LIBRARY_PATH
+          echo "CUDA_PATH:"
+          echo $CUDA_PATH
+          echo "CUDA_HOME:"
+          echo $CUDA_HOME
+        
       - name: Set CUDA paths for Windows
         if: runner.os == 'Windows'
         run: |
           echo "PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4\bin;${env:PATH}" >> $env:GITHUB_ENV
           echo "CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" >> $env:GITHUB_ENV
           echo "CUDA_HOME=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" >> $env:GITHUB_ENV
+
+      # check ENV variable
+      - name: Check CUDA paths
+        if: runner.os == 'Windows'
+        run: |
+          echo "PATH:"
+          echo $env:PATH
+          echo "CUDA_PATH:"
+          echo $env:CUDA_PATH
+          echo "CUDA_HOME:"
+          echo $env:CUDA_HOME
+
       - name: Check CUDA version
         run: |
           echo "CUDA version:"
@@ -106,6 +113,7 @@ jobs:
           echo $LD_LIBRARY_PATH
           echo "PATH:"
           echo $PATH
+
       # test if cuda_profiler_api.h exists
       - name: Check CUDA profiler_api.h on Linux
         if: runner.os == 'Linux'
