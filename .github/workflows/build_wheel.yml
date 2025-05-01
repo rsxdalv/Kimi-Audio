@@ -94,7 +94,7 @@ jobs:
           }
         
       - name: Install Deps
-        run: python -m pip install torch==2.6.0 wheel ninja build setuptools numpy --extra-index-url https://download.pytorch.org/whl/cu124
+        run: python -m pip install torch==2.6.0 torchaudio wheel ninja build setuptools numpy --extra-index-url https://download.pytorch.org/whl/cu124
       
       - name: Install project depss
         run: python -m pip install --no-build-isolation -e .
