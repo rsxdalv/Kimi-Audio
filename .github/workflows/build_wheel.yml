@@ -16,12 +16,9 @@ jobs:
       max-parallel: 4
       fail-fast: false
       matrix:
-        # platform: [ubuntu-latest, windows-latest]
-        platform: [windows-latest]
+        platform: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.10"]
-        # cuda-version: ["12.4.0"]
         # fix due to missing 12.4.0 in the network
-        # cuda-version: ["12.5.0"]
         cuda-version: ["12.4.1"]
 
     runs-on: ${{ matrix.platform }}
@@ -37,12 +34,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Setup CUDA
+        if: runner.os == 'Linux' || runner.os == 'Windows'
         uses: Jimver/cuda-toolkit@v0.2.23
         with:
           cuda: ${{ matrix.cuda-version }}
-          # method: network
           method: local
-          # sub-packages: '["nvcc", "cudart", "cusolver", "cublas", "curand", "cufft", "cusparse", "cupti", "thrust"]'
       - name: Free Up GitHub Actions Ubuntu Runner Disk Space 🔧
         uses: jlumbroso/free-disk-space@main
         with:
@@ -94,9 +90,14 @@ jobs:
           }
         
       - name: Install Deps
+        if: runner.os == 'Linux' || runner.os == 'Windows'
         run: python -m pip install torch==2.6.0 torchaudio wheel ninja build setuptools numpy --extra-index-url https://download.pytorch.org/whl/cu124
       
-      - name: Install project depss
+      - name: Install Deps
+        if: runner.os == 'macOS'
+        run: python -m pip install torch==2.6.0 torchaudio wheel ninja build setuptools numpy
+
+      - name: Install project deps
         run: python -m pip install --no-build-isolation -e .
 
       - name: Build the wheel
