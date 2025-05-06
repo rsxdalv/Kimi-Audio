@@ -2,9 +2,9 @@ name: Build wheel
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - cuda-build
+  # push:
+  #   branches:
+  #     - cuda-build
   create:
     tags:
       - v*
@@ -16,7 +16,8 @@ jobs:
       max-parallel: 4
       fail-fast: false
       matrix:
-        platform: [ubuntu-latest, windows-latest, macos-latest]
+        # platform: [ubuntu-latest, windows-latest, macos-latest]
+        platform: [ubuntu-latest, windows-latest] # macos fails due to missing CUDA, probably setup.py needs to be modified
         python-version: ["3.10"]
         # fix due to missing 12.4.0 in the network
         cuda-version: ["12.4.1"]
