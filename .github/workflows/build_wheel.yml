@@ -2,6 +2,9 @@ name: Build wheel
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - cuda-build
   create:
     tags:
       - v*
