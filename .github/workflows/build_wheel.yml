@@ -2,9 +2,6 @@ name: Build wheel
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - cuda-build
   create:
     tags:
       - v*
@@ -18,9 +15,20 @@ jobs:
       matrix:
         # platform: [ubuntu-latest, windows-latest, macos-latest]
         platform: [ubuntu-latest, windows-latest] # macos fails due to missing CUDA, probably setup.py needs to be modified
-        python-version: ["3.10"]
+        python-version: ["3.10", "3.11", "3.12"]
         # fix due to missing 12.4.0 in the network
         cuda-version: ["12.4.1"]
+        torch-version: ["2.6.0"]
+        include:
+          - python-version: "3.10"
+            cp_tag: "cp310"
+          - python-version: "3.11"
+            cp_tag: "cp311"
+          - python-version: "3.12"
+            cp_tag: "cp312"
+          - cuda-version: "12.4.1"
+            cuda-tag: "cu124"
+            cuda-short: "12.4"
 
     runs-on: ${{ matrix.platform }}
 
@@ -57,22 +65,20 @@ jobs:
       - name: Set CUDA paths for Linux
         if: runner.os == 'Linux'
         run: |
-          echo "PATH=/usr/local/cuda-12.4/bin:$PATH" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=/usr/local/cuda-12.4/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-
+          echo "PATH=/usr/local/cuda-${{ matrix.cuda-short }}/bin:$PATH" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=/usr/local/cuda-${{ matrix.cuda-short }}/lib64:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
       - name: Set CUDA paths for Windows
         if: runner.os == 'Windows'
         run: |
-          echo "PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4\bin;${env:PATH}" >> $env:GITHUB_ENV
-          echo "CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" >> $env:GITHUB_ENV
-          echo "CUDA_HOME=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4" >> $env:GITHUB_ENV
+          echo "PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v${{ matrix.cuda-short }}\bin;${env:PATH}" >> $env:GITHUB_ENV
+          echo "CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v${{ matrix.cuda-short }}" >> $env:GITHUB_ENV
+          echo "CUDA_HOME=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v${{ matrix.cuda-short }}" >> $env:GITHUB_ENV
 
-      # test if cuda_profiler_api.h exists
       - name: Check CUDA profiler_api.h on Linux
         if: runner.os == 'Linux'
         run: |
-          if [ -f /usr/local/cuda-12.4/include/cuda_profiler_api.h ]; then
+          if [ -f /usr/local/cuda-${{ matrix.cuda-short }}/include/cuda_profiler_api.h ]; then
             echo "cuda_profiler_api.h exists"
           else
             echo "cuda_profiler_api.h does not exist"
@@ -83,30 +89,30 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          if (Test-Path "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4\include\cuda_profiler_api.h") {
+          if (Test-Path "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v${{ matrix.cuda-short }}\include\cuda_profiler_api.h") {
             echo "cuda_profiler_api.h exists"
           } else {
             echo "cuda_profiler_api.h does not exist"
             exit 1
           }
-        
+
       - name: Install Deps
         if: runner.os == 'Linux' || runner.os == 'Windows'
-        run: python -m pip install torch==2.6.0 torchaudio wheel ninja build setuptools numpy --extra-index-url https://download.pytorch.org/whl/cu124
-      
+        run: python -m pip install torch==${{ matrix.torch-version }} torchaudio wheel ninja build setuptools numpy --extra-index-url https://download.pytorch.org/whl/${{ matrix.cuda-tag }}
+
       - name: Install Deps
         if: runner.os == 'macOS'
-        run: python -m pip install torch==2.6.0 torchaudio wheel ninja build setuptools numpy
+        run: python -m pip install torch==${{ matrix.torch-version }} torchaudio wheel ninja build setuptools numpy
 
       - name: Install project deps
         run: python -m pip install --no-build-isolation -e .
 
       - name: Build the wheel
         env:
-          TORCH_CUDA_ARCH_LIST: "7.0;8.0"  # Specify supported GPU architectures
+          TORCH_CUDA_ARCH_LIST: "7.0;8.0" # Specify supported GPU architectures
           FORCE_CUDA: 1
           # Disable build isolation
-          PIP_NO_BUILD_ISOLATION: "yes" 
+          PIP_NO_BUILD_ISOLATION: "yes"
         run: python -m build --wheel --no-isolation --outdir dist/
 
       - run: du -h dist/*
@@ -117,10 +123,10 @@ jobs:
       - name: Log Built Wheels
         run: |
           ls dist
-  
+
       - name: Set wheel name
         run: echo "wheel_name=$(basename dist/*.whl)" >> $GITHUB_ENV
-        
+
       - name: Get the tag version
         id: extract_branch
         run: echo ::set-output name=branch::${GITHUB_REF#refs/tags/}
