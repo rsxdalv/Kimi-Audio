@@ -51,6 +51,8 @@ jobs:
         with:
           cuda: ${{ matrix.cuda-version }}
           method: local
+          use-github-cache: false
+
       - name: Free Up GitHub Actions Ubuntu Runner Disk Space 🔧
         uses: jlumbroso/free-disk-space@main
         with:
